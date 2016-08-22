@@ -1,0 +1,16 @@
+{
+  "name": "pong.js",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Tomasz Batko",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "load-grunt-config": "^0.19.2"
+  },
+  "dependencies": {
+    "grunt-sails-linker": "^0.10.1"
+  }
+}
