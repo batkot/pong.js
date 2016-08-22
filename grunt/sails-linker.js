@@ -6,7 +6,7 @@ module.exports = {
 			fileTmpl: '<script src="%s" ></script>',
 		},
 		files : {
-			'index.html' : ['<%= consts.src %>/**/*.js', '!<%= consts.src %>/**/*spec.js']
+			'index.html' : ['<%= consts.appSrc %>/**/*.js', '!<%= consts.appSrc %>/**/*spec.js']
 		}
 	}
 };

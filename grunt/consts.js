@@ -1,5 +1,6 @@
 module.exports = {
 	appSrc : "src",
-	appScripts : appSrc + "/**/*.js",
-	appTests : appSrc + "/**/*.spec.js"
+
+	appScripts : '<%= consts.appSrc %>/**/*.js',
+	appTests : '<%= consts.appSrc %>/**/*.spec.js'
 }

@@ -102,6 +102,7 @@ _NCrunch_*
 # MightyMoose
 *.mm.*
 AutoTest.Net/
+*.swp
 
 # Web workbench (sass)
 .sass-cache/
