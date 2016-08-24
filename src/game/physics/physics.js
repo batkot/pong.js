@@ -8,13 +8,16 @@ var Physics = (function(physics){
 		create : createPoint,
 		add : addPoints,
 		subtract : subtractPoints,
-		equal: equalPoints
+		equal: equalPoints,
+		negative : negativePoint
 	}
 
 	physics.Rectangle = {
 		Unit : createRectangle(physics.Point.Zero, 1,1),
+		create : createRectangle,
 		move : moveRectangle,
-		scale : scaleRectangle
+		scale : scaleRectangle,
+		intersect : intersectRectangles
 	}
 
 	return physics;
@@ -37,6 +40,10 @@ var Physics = (function(physics){
 
 	function equalPoints(a,b) {
 		return a.x === b.x && a.x == b.x;
+	}
+
+	function negativePoint(a){
+		return createPoint(-a.x, -a.y);
 	}
 
 	//RECT
@@ -63,6 +70,13 @@ var Physics = (function(physics){
 			rect.corner,
 			rect.width * scale,
 			rect.height * scale);
+	}
+
+	function intersectRectangles(rectA, rectB){
+		return (rectA.corner.x < rectB.corner.x + rectB.width && 
+				rectA.corner.x + rectA.width > rectB.corner.x &&
+				rectA.corner.y < rectB.corner.y + rectB.height &&
+				rectA.corner.y + rectA.height > rectB.corner.y)
 	}
 
 })(Physics || {});

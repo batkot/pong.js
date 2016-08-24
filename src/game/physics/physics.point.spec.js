@@ -113,6 +113,22 @@ describe("Physics 2DPoint", function () {
 			});
 		});
 
+		describe("Negative", function(){
+			it("Double negative equals to starting point", function(){
+				var result = Physics.Point.negative(
+								Physics.Point.negative(startPoint));
+
+				expect(Physics.Point.equal(result, startPoint)).toBe(true);
+			});
+
+			it("Negates coordinates", function(){
+				var result = Physics.Point.negative(startPoint);
+
+				expect(result.x).toBe(-startPoint.x);
+				expect(result.y).toBe(-startPoint.y);
+			});
+		});
+
 		function commutativePropertyCheck(func, pointA, pointB){
 			var first = func(pointA, pointB);
 			var second = func(pointB, pointA);
