@@ -6,12 +6,14 @@
   "license": "MIT",
   "devDependencies": {
     "grunt": "^1.0.1",
+    "grunt-bower-task": "^0.4.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-jasmine": "^1.0.3",
     "grunt-contrib-watch": "^1.0.0",
     "load-grunt-config": "^0.19.2"
   },
   "dependencies": {
+    "bower": "^1.7.9",
     "grunt-sails-linker": "^0.10.1"
   }
 }

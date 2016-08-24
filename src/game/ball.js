@@ -11,5 +11,4 @@ var Ball = function(ball){
 			}
 		};
 	}
-
 }(Ball || {});
