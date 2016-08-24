@@ -1,0 +1,20 @@
+{
+  "name": "pong.js",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Tomasz Batko"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "rxjs": "^4.1.0"
+  }
+}

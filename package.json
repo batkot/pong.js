@@ -13,7 +13,6 @@
     "load-grunt-config": "^0.19.2"
   },
   "dependencies": {
-    "bower": "^1.7.9",
     "grunt-sails-linker": "^0.10.1"
   }
 }
