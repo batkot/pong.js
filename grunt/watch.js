@@ -3,7 +3,8 @@ module.exports = {
 		files : 'src/**/*.js',
 		tasks : ['build','sails-linker:dev', 'jasmine:unit'],
 		options : {
-			reload: true
+			reload: true,
+			livereload: true
 		}
 	}
 }

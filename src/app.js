@@ -54,14 +54,19 @@ var leftRacketStream = Rx.Observable.fromEvent(document, "keydown", e => {
 									if (e.keyCode === keyCodes.W) return Physics.Point.negative(Physics.Point.UnitY);
 									return Physics.Point.Zero;
 								})
-								.scan((racket, curr) => Engine.Racket.move(racket, curr), leftRacket);
+								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), leftRacket);
 //right racket
 var rightRacketStream = Rx.Observable.fromEvent(document, "keydown", e => {
 									if (e.keyCode === keyCodes.DOWN) return Physics.Point.UnitY;
 									if (e.keyCode === keyCodes.UP) return Physics.Point.negative(Physics.Point.UnitY);
 									return Physics.Point.Zero;
 								})
-								.scan((racket, curr) => Engine.Racket.move(racket, curr), rightRacket);
+								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), rightRacket);
+
+//ball 
+var ballStream = Rx.Observable.interval(16)
+					.scan((b, e) => Engine.Ball.move(b,table), ball)
+					.subscribe(b => renderBall(ballView, b));
 
 //Game loop
 leftRacketStream

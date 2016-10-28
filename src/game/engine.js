@@ -9,7 +9,7 @@ var Engine = (function(engine, phys){
 	}
 
 	engine.Racket = {
-		move : moveRacket
+		move : moveRacket,
 	};
 
 	engine.Score = {
@@ -22,6 +22,8 @@ var Engine = (function(engine, phys){
 		create : createBall,
 		bounceX : bounceXBall,
 		bounceY : bounceYBall,
+		move : moveBall,
+		accelerate : accelerateBall,
 		startOnTable : startOnTableBall
 	}
 
@@ -49,14 +51,18 @@ var Engine = (function(engine, phys){
 	}
 
 	// RACKET
-	function moveRacket(racket, direction){
-		return phys.Rectangle.move(racket, direction);
+	function moveRacket(racket, direction, table){
+		var newRacket = phys.Rectangle.move(racket, direction);
+		return isObjectOnTableEdge(newRacket, table) 
+			? racket
+			: newRacket;
 	}
 
 	// BALL
-	function createBall(x,y, d_x, d_y) {
+	function createBall(x,y,r, d_x, d_y) {
 		return {
 			position : phys.Point.create(x,y),
+			radius : r,
 			velocity : phys.Point.create(d_x, d_y)
 		};
 	}
@@ -65,6 +71,7 @@ var Engine = (function(engine, phys){
 		return createBall(
 			ball.position.x, 
 			ball.position.y, 
+			ball.radius,
 			-ball.velocity.x, 
 			ball.velocity.y);
 	}
@@ -73,20 +80,34 @@ var Engine = (function(engine, phys){
 		return createBall(
 			ball.position.x, 
 			ball.position.y, 
+			ball.radius,
 			ball.velocity.x, 
 			-ball.velocity.y);
+	}
+
+	function moveBall(ball, table){
+		var newPos = phys.Point.add(ball.position, ball.velocity);
+		return isObjectOnTableEdge(phys.Rectangle.create(newPos, ball.radius, ball.radius), table) 
+			? bounceYBall(ball)
+			: createBall(
+				newPos.x,
+				newPos.y,
+				ball.radius,
+				ball.velocity.x,
+				ball.velocity.y);
 	}
 
 	function startOnTableBall(table){
 		return createBall(
 			table.width/2,
 			table.height/2,
+			10,
 			0,
-			0);
+			1);
 	}
 
 	function accelerateBall(ball, coefficient){
-		var newSpeed = phys.Point.multiply(ball, coefficient);
+		var newSpeed = phys.Point.multiply(ball.velocity, coefficient);
 		return createBall(
 			ball.position.x, 
 			ball.position.y, 
@@ -99,12 +120,16 @@ var Engine = (function(engine, phys){
 		return {
 			width : width,
 			height : height,
-			ceiling : phys.Rectangle.create(phys.Point.create(0, height),width, 1),
-			floor : phys.Rectangle.create(phys.Point.create(0, -1),width, 1),
-			leftGoal : phys.Rectangle.create(phys.Point.create(-1,0),1, height),
-			rightGoal : phys.Rectangle.create(phys.Point.create(width,0),1, height)
+			ceiling : phys.Rectangle.create(phys.Point.create(0, height),width, 100),
+			floor : phys.Rectangle.create(phys.Point.create(0, -100),width, 100),
+			leftGoal : phys.Rectangle.create(phys.Point.create(-100,0),100, height),
+			rightGoal : phys.Rectangle.create(phys.Point.create(width,0),100, height)
 		};
 	}
+
+	function isObjectOnTableEdge(position, table){
+		return phys.Rectangle.intersect(position, table.ceiling) || phys.Rectangle.intersect(position, table.floor);
+	};
 
 	// STATE
 	function createState(leftRacket, rightRacket, table, ball, score){
