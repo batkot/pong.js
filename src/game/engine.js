@@ -84,7 +84,7 @@ var Engine = (function(engine, phys){
 
 	function racketBounceBall(racket, ball){
 		return phys.Rectangle.intersect(racket, ballBouncingRectangle(ball))
-			 ? bounceXBall(ball)
+			 ? accelerateBall(bounceXBall(ball),1.5)
 			 : ball;
 	}
 
@@ -151,6 +151,7 @@ var Engine = (function(engine, phys){
 		return createBall(
 			ball.position.x, 
 			ball.position.y, 
+			ball.radius,
 			newSpeed.x,
 			newSpeed.y);
 	}
