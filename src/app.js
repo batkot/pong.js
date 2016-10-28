@@ -86,22 +86,18 @@ var rightRacketStream = Rx.Observable.fromEvent(document, "keydown")
 								.map(p => Physics.Point.multiply(p, racketSpeed))
 								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), rightRacket);
 
-//ball 
-var ballStream = Rx.Observable.interval(16)
-					.scan((b, e) => b, ball);
-					//Engine.Ball.move(b,table), ball);
-
 //Game loop
 leftRacketStream
 	.combineLatest(
 		rightRacketStream, 
 		(left, right) => { return { lr : left, rr : right }})
 	.combineLatest(
-		ballStream,
-		(x, ball) => { return { leftRacket : x.lr, rightRacket : x.rr, ball : ball }})
+		Rx.Observable.interval(16),
+		(x, t) => { return { leftRacket : x.lr, rightRacket : x.rr, time : t }})
 	.scan((state, stateCandidate) => {
 		//Check score:
-		let b1 = Engine.Racket.bounceBall(stateCandidate.leftRacket, stateCandidate.ball);
+		let b = Engine.Ball.move(state.ball, state.table);
+		let b1 = Engine.Racket.bounceBall(stateCandidate.leftRacket, b);
 		let b2 = Engine.Racket.bounceBall(stateCandidate.rightRacket, b1);
 		let whoShouldScore = Engine.Rules.whoShouldScore(b2, table);
 		
