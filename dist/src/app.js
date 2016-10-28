@@ -18,6 +18,8 @@ var rightRacket = Physics.Rectangle.move(leftRacket,
 
 var ball = Engine.Ball.startOnTable(table);
 var renderState = Graphics.createRenderer(racketOneView, racketTwoView, tableView, scoreView, ballView);
+var initState = Engine.State.create(leftRacket, rightRacket, table, ball, Engine.Score.Zero);
+renderState(initState);
 
 var racketSpeed = 10;
 const leftPlayerControls = {
@@ -49,11 +51,13 @@ var mapControl = function(keyCode, controls){
 var leftRacketStream = Rx.Observable.fromEvent(document, "keydown")
 								.filter(e => filterControlKeys(e.keyCode, leftPlayerControls))
 								.map(e => mapControl(e.keyCode, leftPlayerControls))
+								.startWith(Physics.Point.UnitY)
 								.map(p => Physics.Point.multiply(p, racketSpeed))
 								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), leftRacket);
 //right racket
 var rightRacketStream = Rx.Observable.fromEvent(document, "keydown")
 								.filter(e => filterControlKeys(e.keyCode, rightPlayerControls))
+								.startWith(Physics.Point.UnitY)
 								.map(e => mapControl(e.keyCode, rightPlayerControls))
 								.map(p => Physics.Point.multiply(p, racketSpeed))
 								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), rightRacket);
@@ -79,6 +83,6 @@ leftRacketStream
 			state.table,
 			whoShouldScore !== Engine.Rules.ScoreResult.None ? Engine.Ball.startOnTable(state.table) : b2,
 			Engine.Rules.score(whoShouldScore, state.score));
-	},Engine.State.create(leftRacket, rightRacket, table, ball, Engine.Score.Zero))
+	}, initState)
 	.subscribe(s => renderState(s));
 							
