@@ -47,39 +47,75 @@ var renderState = function(state) {
 	renderScore(scoreView, state.score);
 }
 
+var racketSpeed = 10;
+const leftPlayerControls = {
+	up : keyCodes.W,
+	down : keyCodes.S
+};
+
+const rightPlayerControls = {
+	up : keyCodes.UP,
+	down : keyCodes.DOWN
+};
+
+var filterControlKeys = function(keyCode, controls){
+	for(var prop in controls){
+		if (controls[prop] === keyCode) 
+			return true;
+	}
+	return false;
+}
+
+var mapControl = function(keyCode, controls){
+	return controls.up === keyCode 
+	     ? Physics.Point.negative(Physics.Point.UnitY)
+		 : Physics.Point.UnitY;
+}
+
 
 //left racket
-var leftRacketStream = Rx.Observable.fromEvent(document, "keydown", e => {
-									if (e.keyCode === keyCodes.S) return Physics.Point.UnitY;
-									if (e.keyCode === keyCodes.W) return Physics.Point.negative(Physics.Point.UnitY);
-									return Physics.Point.Zero;
-								})
+var leftRacketStream = Rx.Observable.fromEvent(document, "keydown")
+								.filter(e => filterControlKeys(e.keyCode, leftPlayerControls))
+								.map(e => mapControl(e.keyCode, leftPlayerControls))
+								.map(p => Physics.Point.multiply(p, racketSpeed))
 								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), leftRacket);
 //right racket
-var rightRacketStream = Rx.Observable.fromEvent(document, "keydown", e => {
-									if (e.keyCode === keyCodes.DOWN) return Physics.Point.UnitY;
-									if (e.keyCode === keyCodes.UP) return Physics.Point.negative(Physics.Point.UnitY);
-									return Physics.Point.Zero;
-								})
+var rightRacketStream = Rx.Observable.fromEvent(document, "keydown")
+								.filter(e => filterControlKeys(e.keyCode, rightPlayerControls))
+								.map(e => mapControl(e.keyCode, rightPlayerControls))
+								.map(p => Physics.Point.multiply(p, racketSpeed))
 								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), rightRacket);
 
 //ball 
 var ballStream = Rx.Observable.interval(16)
-					.scan((b, e) => Engine.Ball.move(b,table), ball)
-					.subscribe(b => renderBall(ballView, b));
+					.scan((b, e) => b, ball);
+					//Engine.Ball.move(b,table), ball);
 
 //Game loop
 leftRacketStream
 	.combineLatest(
 		rightRacketStream, 
-		(left, right) => { return { leftRacket : left, rightRacket : right }})
-	.scan((state, latestMoves) => {
+		(left, right) => { return { lr : left, rr : right }})
+	.combineLatest(
+		ballStream,
+		(x, ball) => { return { leftRacket : x.lr, rightRacket : x.rr, ball : ball }})
+	.scan((state, stateCandidate) => {
+		//Check score:
+		let b1 = Engine.Racket.bounceBall(stateCandidate.leftRacket, stateCandidate.ball);
+		let b2 = Engine.Racket.bounceBall(stateCandidate.rightRacket, b1);
+		let whoShouldScore = Engine.Rules.whoShouldScore(b2, table);
+		
 		return Engine.State.create(
-			latestMoves.leftRacket,
-			latestMoves.rightRacket,
+			stateCandidate.leftRacket,
+			stateCandidate.rightRacket,
 			state.table,
-			state.ball,
-			state.score)
+			b2,
+			Engine.Rules.score(whoShouldScore, state.score));
 	},Engine.State.create(leftRacket, rightRacket, table, ball, Engine.Score.Zero))
 	.subscribe(s => renderState(s));
 							
+
+//Commands:
+//MoveLeftRacket { x }
+//MoveRightRacket { x }
+//MoveBall

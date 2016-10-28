@@ -10,6 +10,7 @@ var Engine = (function(engine, phys){
 
 	engine.Racket = {
 		move : moveRacket,
+		bounceBall : racketBounceBall
 	};
 
 	engine.Score = {
@@ -32,7 +33,30 @@ var Engine = (function(engine, phys){
 		create  : createTable
 	}
 
+	engine.Rules = {
+		ScoreResult : {
+			Left : {},
+			Right : {},
+			None : {}
+		},
+		whoShouldScore : whoShouldScoreRules,
+		score : scorePoints
+	}
+
 	return engine;
+
+	//RULES
+	function whoShouldScoreRules(ball, table){
+		return isBallTouchingWall(ball, table.leftGoal)  ? engine.Rules.ScoreResult.Right 
+			 : isBallTouchingWall(ball, table.rightGoal) ? engine.Rules.ScoreResult.Left 
+			 : engine.Rules.None;
+	}
+
+	function scorePoints(scoreResult, score){
+		return scoreResult == engine.Rules.ScoreResult.Left ? engine.Score.leftScore(score)
+			:  scoreResult == engine.Rules.ScoreResult.Right ? engine.Score.rightScore(score)
+			: score;
+	}
 
 	// SCORE
 	function createScore(leftPlayerScore, rightPlayerScore){
@@ -56,6 +80,12 @@ var Engine = (function(engine, phys){
 		return isObjectOnTableEdge(newRacket, table) 
 			? racket
 			: newRacket;
+	}
+
+	function racketBounceBall(racket, ball){
+		return phys.Rectangle.intersect(racket, ballBouncingRectangle(ball))
+			 ? bounceXBall(ball) 
+			 : ball;
 	}
 
 	// BALL
@@ -97,12 +127,22 @@ var Engine = (function(engine, phys){
 				ball.velocity.y);
 	}
 
+	function ballBouncingRectangle(ball){
+		return phys.Rectangle.create(ball.position, ball.radius, ball.radius);
+	}
+
+	function isBallTouchingWall(ball, goal){
+		return phys.Rectangle.intersect(
+					ballBouncingRectangle(ball),
+					goal);
+	}
+
 	function startOnTableBall(table){
 		return createBall(
 			table.width/2,
 			table.height/2,
 			10,
-			0,
+			1,
 			1);
 	}
 
