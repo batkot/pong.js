@@ -1,7 +1,11 @@
 var Engine = (function(engine, phys){
 
 	engine.State = {
-		create : createState
+		create : createState,
+		withLeftRacket : createStateWithLeftRacket,
+		withRightRacket : createStateWithRightRacket,
+		withBall : createStateWithBall,
+		withScore : createStateWithScore
 	}
 
 	engine.Racket = {
@@ -17,11 +21,13 @@ var Engine = (function(engine, phys){
 	engine.Ball = {
 		create : createBall,
 		bounceX : bounceXBall,
-		bounceY : bounceYBall
+		bounceY : bounceYBall,
+		startOnTable : startOnTableBall
 	}
 
 	engine.Table = {
-		create : createTable
+		Default : createTable(900,500),
+		create  : createTable
 	}
 
 	return engine;
@@ -71,6 +77,14 @@ var Engine = (function(engine, phys){
 			-ball.velocity.y);
 	}
 
+	function startOnTableBall(table){
+		return createBall(
+			table.width/2,
+			table.height/2,
+			0,
+			0);
+	}
+
 	function accelerateBall(ball, coefficient){
 		var newSpeed = phys.Point.multiply(ball, coefficient);
 		return createBall(
@@ -85,18 +99,58 @@ var Engine = (function(engine, phys){
 		return {
 			width : width,
 			height : height,
-			ceiling : phys.Rectangle.create(phys.Point,create(0, height),width, 1),
-			floor : phys.Rectangle.create(phys.Point,create(0, -1),width, 1),
+			ceiling : phys.Rectangle.create(phys.Point.create(0, height),width, 1),
+			floor : phys.Rectangle.create(phys.Point.create(0, -1),width, 1),
 			leftGoal : phys.Rectangle.create(phys.Point.create(-1,0),1, height),
 			rightGoal : phys.Rectangle.create(phys.Point.create(width,0),1, height)
 		};
 	}
 
 	// STATE
-	function createState(racket){
+	function createState(leftRacket, rightRacket, table, ball, score){
 		return {
-			racket : racket
+			leftRacket : leftRacket,
+			rightRacket : rightRacket,
+			table : table,
+			ball : ball,
+			score : score
 		};
+	}
+
+	function createStateWithLeftRacket(state, racket){
+		return createState(
+			racket,
+			state.rightRacket,
+			state.table,
+			state.ball,
+			state.score);
+	}
+
+	function createStateWithRightRacket(state, racket){
+		return createState(
+			state.leftRacket,
+			racket,
+			state.table,
+			state.ball,
+			state.score);
+	}
+
+	function createStateWithBall(state, ball){
+		return createState(
+			state.leftRacket,
+			state.rightRacket,
+			state.table,
+			ball,
+			state.score);
+	}
+
+	function createStateWithScore(state, score){
+		return createState(
+			state.leftRacket,
+			state.rightRacket,
+			state.table,
+			state.ball,
+			score);
 	}
 
 })(Engine || {}, Physics);
