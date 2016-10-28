@@ -1,10 +1,16 @@
 module.exports = function(grunt){
 	require('load-grunt-config')(grunt);
 
+	grunt.registerTask('build',
+	[
+		'bower:install',
+		'sails-linker:dev'
+	]);
+
 	grunt.registerTask('default', ['sails-linker:dev']);
 	grunt.registerTask('dev',
 	[
-		'sails-linker:dev',
+		'build',
 		'watch:dev'
 	]);
 };

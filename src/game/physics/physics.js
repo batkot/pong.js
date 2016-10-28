@@ -8,6 +8,7 @@ var Physics = (function(physics){
 		create : createPoint,
 		add : addPoints,
 		subtract : subtractPoints,
+		multiply : multiplyPoint,
 		equal: equalPoints,
 		negative : negativePoint
 	}
@@ -17,6 +18,8 @@ var Physics = (function(physics){
 		create : createRectangle,
 		move : moveRectangle,
 		scale : scaleRectangle,
+		scaleWidth : scaleRectangleWidth,
+		scaleHeight : scaleRectangleHeight,
 		intersect : intersectRectangles
 	}
 
@@ -46,6 +49,11 @@ var Physics = (function(physics){
 		return createPoint(-a.x, -a.y);
 	}
 
+	function multiplyPoint(point, scalar){
+		return createPoint(point.x * scalar, point.y * scalar);
+	}
+
+
 	//RECT
 	function createRectangle(point, width, height){
 		if (width <= 0 || height <= 0)
@@ -69,6 +77,20 @@ var Physics = (function(physics){
 		return createRectangle(
 			rect.corner,
 			rect.width * scale,
+			rect.height * scale);
+	}
+
+	function scaleRectangleWidth(rect, scale){
+		return createRectangle(
+			rect.corner,
+			rect.width * scale,
+			rect.height);
+	}
+
+	function scaleRectangleHeight(rect, scale){
+		return createRectangle(
+			rect.corner,
+			rect.width,
 			rect.height * scale);
 	}
 

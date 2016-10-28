@@ -84,6 +84,18 @@ describe("Physics 2DPoint", function () {
 			});
 		});
 
+		describe("Multiply by scalar", function(){
+			it("One should be neutral element", function(){
+				neutralElementCheck(Physics.Point.multiply, startPoint, 1);
+			});
+
+			it("Should change both coordinates", function(){
+				var multiplied = Physics.Point.multiply(startPoint, 2);
+				expect(multiplied.x).toBe(startPoint.x * 2);
+				expect(multiplied.y).toBe(startPoint.y * 2);
+			});
+		});
+
 		describe("Equality", function(){
 			
 			it("Should return false is points are not equal", function(){

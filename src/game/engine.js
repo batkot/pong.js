@@ -17,8 +17,7 @@ var Engine = (function(engine, phys){
 	engine.Ball = {
 		create : createBall,
 		bounceX : bounceXBall,
-		bounceY : bounceYBall,
-		move : moveBall
+		bounceY : bounceYBall
 	}
 
 	engine.Table = {
@@ -70,6 +69,15 @@ var Engine = (function(engine, phys){
 			ball.position.y, 
 			ball.velocity.x, 
 			-ball.velocity.y);
+	}
+
+	function accelerateBall(ball, coefficient){
+		var newSpeed = phys.Point.multiply(ball, coefficient);
+		return createBall(
+			ball.position.x, 
+			ball.position.y, 
+			newSpeed.x,
+			newSpeed.y);
 	}
 
 	// TABLE
