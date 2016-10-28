@@ -47,20 +47,32 @@ var mapControl = function(keyCode, controls){
 }
 
 
-//left racket
-var leftRacketStream = Rx.Observable.fromEvent(document, "keydown")
+var keyDownStream = Rx.Observable.fromEvent(document, "keydown");
+var keyUpStream = Rx.Observable.fromEvent(document, "keyup");
+
+var leftRacketMoveStream = keyDownStream
 								.filter(e => filterControlKeys(e.keyCode, leftPlayerControls))
-								.map(e => mapControl(e.keyCode, leftPlayerControls))
-								.startWith(Physics.Point.UnitY)
+								.map(e => mapControl(e.keyCode, leftPlayerControls));
+
+var leftRacketStream = keyUpStream
+								.filter(e => filterControlKeys(e.keyCode, leftPlayerControls))
+								.map(e => Physics.Point.Zero)
+								.merge(leftRacketMoveStream)
+								.startWith(Physics.Point.Zero)
 								.map(p => Physics.Point.multiply(p, racketSpeed))
-								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), leftRacket);
+								.map(dir => r => Engine.Racket.move(r,dir, table));
 //right racket
-var rightRacketStream = Rx.Observable.fromEvent(document, "keydown")
+var rightRacketMoveStream = keyDownStream
 								.filter(e => filterControlKeys(e.keyCode, rightPlayerControls))
-								.startWith(Physics.Point.UnitY)
-								.map(e => mapControl(e.keyCode, rightPlayerControls))
+								.map(e => mapControl(e.keyCode, rightPlayerControls));
+
+var rightRacketStream = keyUpStream
+								.filter(e => filterControlKeys(e.keyCode, rightPlayerControls))
+								.map(e => Physics.Point.Zero)
+								.merge(rightRacketMoveStream)
+								.startWith(Physics.Point.Zero)
 								.map(p => Physics.Point.multiply(p, racketSpeed))
-								.scan((racket, dir) => Engine.Racket.move(racket, dir, table), rightRacket);
+								.map(dir => r => Engine.Racket.move(r, dir, table));
 
 //Game loop
 leftRacketStream
@@ -71,15 +83,16 @@ leftRacketStream
 		Rx.Observable.interval(16),
 		(x, t) => { return { leftRacket : x.lr, rightRacket : x.rr, time : t }})
 	.scan((state, stateCandidate) => {
-		//Check score:
+		let leftRacket = stateCandidate.leftRacket(state.leftRacket);
+		let rightRacket = stateCandidate.rightRacket(state.rightRacket);
 		let b = Engine.Ball.move(state.ball, state.table);
-		let b1 = Engine.Racket.bounceBall(stateCandidate.leftRacket, b);
-		let b2 = Engine.Racket.bounceBall(stateCandidate.rightRacket, b1);
+		let b1 = Engine.Racket.bounceBall(leftRacket, b);
+		let b2 = Engine.Racket.bounceBall(rightRacket, b1);
 		let whoShouldScore = Engine.Rules.whoShouldScore(b2, table);
 		
 		return Engine.State.create(
-			stateCandidate.leftRacket,
-			stateCandidate.rightRacket,
+			leftRacket,
+			rightRacket,
 			state.table,
 			whoShouldScore !== Engine.Rules.ScoreResult.None ? Engine.Ball.startOnTable(state.table) : b2,
 			Engine.Rules.score(whoShouldScore, state.score));
