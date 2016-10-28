@@ -17,35 +17,7 @@ var rightRacket = Physics.Rectangle.move(leftRacket,
 									Physics.Point.multiply(Physics.Point.UnitX, table.width - leftRacket.width));
 
 var ball = Engine.Ball.startOnTable(table);
-
-var renderRacket = function(racketView, racket){
-	racketView.style.top = racket.corner.y + "px";
-	racketView.style.left = racket.corner.x + "px";
-	racketView.style.width = racket.width;
-	racketView.style.height = racket.height;
-}
-
-var renderTable = function(tableView, table){
-	tableView.style.width = table.width;
-	tableView.style.height = table.height;
-}
-
-var renderScore = function(scoreView, score){
-	scoreView.innerHTML = score.leftScore + ":" + score.rightScore;
-}
-
-var renderBall = function(ballView, ball){
-	ballView.style.top = ball.position.y + "px";
-	ballView.style.left = ball.position.x + "px";
-}
-
-var renderState = function(state) {
-	renderRacket(racketOneView, state.leftRacket);
-	renderRacket(racketTwoView, state.rightRacket);
-	renderBall(ballView, state.ball);
-	renderTable(tableView, state.table);
-	renderScore(scoreView, state.score);
-}
+var renderState = Graphics.createRenderer(racketOneView, racketTwoView, tableView, scoreView, ballView);
 
 var racketSpeed = 10;
 const leftPlayerControls = {
@@ -105,13 +77,8 @@ leftRacketStream
 			stateCandidate.leftRacket,
 			stateCandidate.rightRacket,
 			state.table,
-			b2,
+			whoShouldScore !== Engine.Rules.ScoreResult.None ? Engine.Ball.startOnTable(state.table) : b2,
 			Engine.Rules.score(whoShouldScore, state.score));
 	},Engine.State.create(leftRacket, rightRacket, table, ball, Engine.Score.Zero))
 	.subscribe(s => renderState(s));
 							
-
-//Commands:
-//MoveLeftRacket { x }
-//MoveRightRacket { x }
-//MoveBall

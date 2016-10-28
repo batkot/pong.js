@@ -49,7 +49,7 @@ var Engine = (function(engine, phys){
 	function whoShouldScoreRules(ball, table){
 		return isBallTouchingWall(ball, table.leftGoal)  ? engine.Rules.ScoreResult.Right 
 			 : isBallTouchingWall(ball, table.rightGoal) ? engine.Rules.ScoreResult.Left 
-			 : engine.Rules.None;
+			 : engine.Rules.ScoreResult.None;
 	}
 
 	function scorePoints(scoreResult, score){
